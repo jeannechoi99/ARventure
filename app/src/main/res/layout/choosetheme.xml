@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.google.ar.core.examples.java.helloar.HelloArActivity">
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/surfaceview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_gravity="top" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.google.ar.core.examples.java.helloar.HelloArActivity"
+        android:orientation="vertical">
+
+        <!--    <android.opengl.GLSurfaceView-->
+        <!--        android:id="@+id/surfaceview"-->
+        <!--        android:layout_width="fill_parent"-->
+        <!--        android:layout_height="fill_parent"-->
+        <!--        android:layout_gravity="top" />-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Choose Your Theme"
+            android:gravity="center">
+        </TextView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:layout_margin="50dp">
+            <ImageButton
+                android:id="@+id/fantasy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/fantasy">
+            </ImageButton>
+
+            <ImageButton
+                android:id="@+id/sf"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/sf">
+            </ImageButton>
+
+            <ImageButton
+                android:id="@+id/historic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/historic">
+            </ImageButton>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_margin="50dp">
+            <ImageButton
+                android:id="@+id/realistic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/realistic">
+            </ImageButton>
+
+            <ImageButton
+                android:id="@+id/kids"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/kids">
+            </ImageButton>
+
+            <ImageButton
+                android:id="@+id/random"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/random">
+            </ImageButton>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>
