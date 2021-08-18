@@ -28,6 +28,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.Toast;
@@ -204,7 +205,7 @@ public class ChooseLocation extends AppCompatActivity implements SampleRender.Re
 //                    }
 //                });
 
-        ImageButton forestButton = findViewById(R.id.forest);
+        Button forestButton = findViewById(R.id.forest);
         forestButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -217,7 +218,7 @@ public class ChooseLocation extends AppCompatActivity implements SampleRender.Re
 
         );
 
-        ImageButton beachButton = findViewById(R.id.beach);
+        Button beachButton = findViewById(R.id.beach);
         beachButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -230,7 +231,7 @@ public class ChooseLocation extends AppCompatActivity implements SampleRender.Re
 
         );
 
-        ImageButton riverButton = findViewById(R.id.forest);
+        Button riverButton = findViewById(R.id.forest);
         riverButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -243,7 +244,7 @@ public class ChooseLocation extends AppCompatActivity implements SampleRender.Re
 
         );
 
-        ImageButton campingsiteButton = findViewById(R.id.campingsite);
+        Button campingsiteButton = findViewById(R.id.campingsite);
         campingsiteButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -256,7 +257,7 @@ public class ChooseLocation extends AppCompatActivity implements SampleRender.Re
 
         );
 
-        ImageButton cityButton = findViewById(R.id.city);
+        Button cityButton = findViewById(R.id.city);
         cityButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -271,16 +272,16 @@ public class ChooseLocation extends AppCompatActivity implements SampleRender.Re
     }
 
     /** Menu button to launch feature specific settings. */
-    protected boolean settingsMenuClick(MenuItem item) {
-        if (item.getItemId() == R.id.depth_settings) {
-            launchDepthSettingsMenuDialog();
-            return true;
-        } else if (item.getItemId() == R.id.instant_placement_settings) {
-            launchInstantPlacementSettingsMenuDialog();
-            return true;
-        }
-        return false;
-    }
+//    protected boolean settingsMenuClick(MenuItem item) {
+//        if (item.getItemId() == R.id.depth_settings) {
+//            launchDepthSettingsMenuDialog();
+//            return true;
+//        } else if (item.getItemId() == R.id.instant_placement_settings) {
+//            launchInstantPlacementSettingsMenuDialog();
+//            return true;
+//        }
+//        return false;
+//    }
 
     @Override
     protected void onDestroy() {

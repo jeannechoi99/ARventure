@@ -219,16 +219,16 @@ public class HelloArActivity extends AppCompatActivity implements SampleRender.R
   }
 
   /** Menu button to launch feature specific settings. */
-  protected boolean settingsMenuClick(MenuItem item) {
-    if (item.getItemId() == R.id.depth_settings) {
-      launchDepthSettingsMenuDialog();
-      return true;
-    } else if (item.getItemId() == R.id.instant_placement_settings) {
-      launchInstantPlacementSettingsMenuDialog();
-      return true;
-    }
-    return false;
-  }
+//  protected boolean settingsMenuClick(MenuItem item) {
+//    if (item.getItemId() == R.id.depth_settings) {
+//      launchDepthSettingsMenuDialog();
+//      return true;
+//    } else if (item.getItemId() == R.id.instant_placement_settings) {
+//      launchInstantPlacementSettingsMenuDialog();
+//      return true;
+//    }
+//    return false;
+//  }
 
   @Override
   protected void onDestroy() {

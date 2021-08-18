@@ -28,6 +28,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.Toast;
@@ -193,7 +194,7 @@ public class ChooseTheme extends AppCompatActivity implements SampleRender.Rende
         depthSettings.onCreate(this);
         instantPlacementSettings.onCreate(this);
 
-        ImageButton fantasyButton = findViewById(R.id.fantasy);
+        Button fantasyButton = findViewById(R.id.fantasy);
         fantasyButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -206,7 +207,7 @@ public class ChooseTheme extends AppCompatActivity implements SampleRender.Rende
 
         );
 
-        ImageButton sfButton = findViewById(R.id.sf);
+        Button sfButton = findViewById(R.id.sf);
         sfButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -219,7 +220,7 @@ public class ChooseTheme extends AppCompatActivity implements SampleRender.Rende
 
         );
 
-        ImageButton historicButton = findViewById(R.id.historic);
+        Button historicButton = findViewById(R.id.historic);
         historicButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -232,7 +233,7 @@ public class ChooseTheme extends AppCompatActivity implements SampleRender.Rende
 
         );
 
-        ImageButton realisticButton = findViewById(R.id.realistic);
+        Button realisticButton = findViewById(R.id.realistic);
         realisticButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -245,7 +246,7 @@ public class ChooseTheme extends AppCompatActivity implements SampleRender.Rende
 
         );
 
-        ImageButton kidsButton = findViewById(R.id.kids);
+        Button kidsButton = findViewById(R.id.kids);
         kidsButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -260,16 +261,16 @@ public class ChooseTheme extends AppCompatActivity implements SampleRender.Rende
     }
 
     /** Menu button to launch feature specific settings. */
-    protected boolean settingsMenuClick(MenuItem item) {
-        if (item.getItemId() == R.id.depth_settings) {
-            launchDepthSettingsMenuDialog();
-            return true;
-        } else if (item.getItemId() == R.id.instant_placement_settings) {
-            launchInstantPlacementSettingsMenuDialog();
-            return true;
-        }
-        return false;
-    }
+//    protected boolean settingsMenuClick(MenuItem item) {
+//        if (item.getItemId() == R.id.depth_settings) {
+//            launchDepthSettingsMenuDialog();
+//            return true;
+//        } else if (item.getItemId() == R.id.instant_placement_settings) {
+//            launchInstantPlacementSettingsMenuDialog();
+//            return true;
+//        }
+//        return false;
+//    }
 
     @Override
     protected void onDestroy() {

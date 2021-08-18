@@ -16,23 +16,45 @@
 
 package com.google.ar.core.examples.java.helloar;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.VirtualDisplay;
 import android.media.Image;
+import android.media.MediaRecorder;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.bumptech.glide.Glide;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Camera;
@@ -79,7 +101,9 @@ import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationExceptio
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -174,6 +198,32 @@ public class ARON extends AppCompatActivity implements SampleRender.Renderer {
     private final float[] worldLightDirection = {0.0f, 0.0f, 0.0f, 0.0f};
     private final float[] viewLightDirection = new float[4]; // view x world light direction
 
+    //Screen Recording
+    private MediaRecorder mediaRecorder;
+    private MediaProjectionManager mediaProjectionManager;
+    private MediaProjection mediaProjection;
+    private VirtualDisplay virtualDisplay;
+    private MediaProjectionCallback mediaProjectionCallback;
+
+    private RelativeLayout rootLayout;
+    private ToggleButton cameraButton;
+    private String videoUri = "";
+
+    private int mScreenDensity;
+    private static final int DISPLAY_WIDTH = 720;
+    private static final int DISPLAY_HEIGHT = 1280;
+
+    private static final int REQUEST_CODE = 1000;
+    private static final int REQUEST_PERMISSION = 1001;
+    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+
+    static {
+        ORIENTATIONS.append(Surface.ROTATION_0, 90);
+        ORIENTATIONS.append(Surface.ROTATION_90, 0);
+        ORIENTATIONS.append(Surface.ROTATION_180, 270);
+        ORIENTATIONS.append(Surface.ROTATION_270, 180);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -205,14 +255,172 @@ public class ARON extends AppCompatActivity implements SampleRender.Renderer {
                 }
 
         );
+
+        ImageButton musicButton = findViewById(R.id.ARON_music);
+
+        ImageButton shareButton = findViewById(R.id.ARON_sharing);
+
+        shareButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        PopupMenu popup = new PopupMenu(ARON.this, v);
+                        //popup.setOnMenuItemClickListener(ARON.this::settingsMenuClick);
+                        popup.inflate(R.menu.sharing_menu);
+                        popup.show();
+                    }
+                });
+
+        ImageButton settingButton = findViewById(R.id.ARON_setting);
+
+        settingButton.setOnClickListener(
+            new View.OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(ARON.this, v);
+                //popup.setOnMenuItemClickListener(ARON.this::settingsMenuClick);
+                popup.inflate(R.menu.settings_menu);
+                popup.show();
+              }
+        });
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        mScreenDensity = metrics.densityDpi;
+
+        mediaRecorder = new MediaRecorder();
+        mediaProjectionManager = (MediaProjectionManager)getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+
+        cameraButton = (ToggleButton)findViewById(R.id.ARON_camera);
+        rootLayout = (RelativeLayout)findViewById(R.id.rootLayout);
+
+        ImageView recordingcircle = findViewById(R.id.recording_circle);
+
+        cameraButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(ContextCompat.checkSelfPermission(ARON.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            + ContextCompat.checkSelfPermission(ARON.this, Manifest.permission.RECORD_AUDIO)
+                            != PackageManager.PERMISSION_GRANTED)
+                        {
+                            if(ActivityCompat.shouldShowRequestPermissionRationale(ARON.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                || ActivityCompat.shouldShowRequestPermissionRationale(ARON.this, Manifest.permission.RECORD_AUDIO))
+                            {
+                                Snackbar.make(rootLayout, "Permissions", Snackbar.LENGTH_INDEFINITE)
+                                        .setAction("ENABLE", new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                ActivityCompat.requestPermissions(ARON.this,
+                                                        new String[]{
+                                                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                                Manifest.permission.RECORD_AUDIO
+                                                        }, REQUEST_PERMISSION);
+                                            }
+                                        }).show();
+                            }
+                            else
+                            {
+                                ActivityCompat.requestPermissions(ARON.this,
+                                        new String[]{
+                                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                Manifest.permission.RECORD_AUDIO
+                                        }, REQUEST_PERMISSION);
+                            }
+                        }
+                        else
+                        {
+                            Glide.with(ARON.this).load(R.raw.red_circle).into(recordingcircle);
+                            ARScreenShare(view);
+                        }
+                    }
+                }
+
+        );
+    }
+
+    private void ARScreenShare(View view) {
+        if(((ToggleButton)view).isChecked())
+        {
+            initRecorder();
+            recordScreen();
+        }
+        else
+        {
+            mediaRecorder.stop();
+            mediaRecorder.reset();
+            stopRecordScreen();
+        }
+    }
+
+    private void recordScreen() {
+        if(mediaProjection == null) {
+            startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
+        }
+        virtualDisplay = createVirtualDisplay();
+        mediaRecorder.start();
+    }
+
+    private VirtualDisplay createVirtualDisplay() {
+        return mediaProjection.createVirtualDisplay("ARON", DISPLAY_WIDTH, DISPLAY_HEIGHT, mScreenDensity,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                mediaRecorder.getSurface(), null, null);
+    }
+
+    private void initRecorder() {
+        try{
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+
+            videoUri = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    + new StringBuilder("/ARventure_Record_").append(new SimpleDateFormat("dd-MM-yyyy-hh_mm_ss")
+            .format(new Date())).append(".mp4").toString();
+
+            mediaRecorder.setOutputFile(videoUri);
+            mediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+            mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            mediaRecorder.setVideoEncodingBitRate(512*1000);
+            mediaRecorder.setVideoFrameRate(30);
+
+            int rotation = getWindowManager().getDefaultDisplay().getRotation();
+            int orientation = ORIENTATIONS.get(rotation+90);
+            mediaRecorder.setOrientationHint(orientation);
+            mediaRecorder.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode != REQUEST_CODE)
+        {
+            Toast.makeText(this, "Unk Error", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(requestCode != RESULT_OK)
+        {
+            Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+            cameraButton.setChecked(false);
+            return;
+        }
+
+        mediaProjectionCallback = new MediaProjectionCallback();
+        mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
+        mediaProjection.registerCallback(mediaProjectionCallback, null);
+        virtualDisplay = createVirtualDisplay();
+        mediaRecorder.start();
     }
 
     /** Menu button to launch feature specific settings. */
     protected boolean settingsMenuClick(MenuItem item) {
-        if (item.getItemId() == R.id.depth_settings) {
+        if (item.getItemId() == R.id.volume_settings) {
             launchDepthSettingsMenuDialog();
             return true;
-        } else if (item.getItemId() == R.id.instant_placement_settings) {
+        } else if (item.getItemId() == R.id.surrounding_settings) {
             launchInstantPlacementSettingsMenuDialog();
             return true;
         }
@@ -329,6 +537,33 @@ public class ARON extends AppCompatActivity implements SampleRender.Renderer {
             }
             finish();
         }
+//        switch (requestCode)
+//        {
+//            case REQUEST_PERMISSION:
+//            {
+//                if((results.length > 0) && (results[0] + results[1] == PackageManager.PERMISSION_GRANTED))
+//                {
+//                    ARScreenShare(cameraButton);
+//                }
+//                else
+//                {
+//                    cameraButton.setChecked(false);
+//                    Log.v("tag", "11111111111111111111111111111111");
+//                    Snackbar.make(rootLayout, "Permissions", Snackbar.LENGTH_INDEFINITE)
+//                            .setAction("ENABLE", new View.OnClickListener() {
+//                                @Override
+//                                public void onClick(View view) {
+//                                    ActivityCompat.requestPermissions(ARON.this,
+//                                            new String[]{
+//                                                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+//                                                    Manifest.permission.RECORD_AUDIO
+//                                            }, REQUEST_PERMISSION);
+//                                }
+//                            }).show();
+//                }
+//                return;
+//            }
+//        }
     }
 
     @Override
@@ -820,5 +1055,36 @@ public class ARON extends AppCompatActivity implements SampleRender.Renderer {
             config.setInstantPlacementMode(InstantPlacementMode.DISABLED);
         }
         session.configure(config);
+    }
+
+    private class MediaProjectionCallback extends MediaProjection.Callback {
+        @Override
+        public void onStop() {
+            if(cameraButton.isChecked())
+            {
+                cameraButton.setChecked(false);
+                mediaRecorder.stop();
+                mediaRecorder.reset();
+            }
+            mediaProjection = null;
+            stopRecordScreen();
+            super.onStop();
+        }
+    }
+
+    private void stopRecordScreen() {
+        if(virtualDisplay == null)
+            return;
+        virtualDisplay.release();
+        destroyMediaProjection();
+    }
+
+    private void destroyMediaProjection() {
+        if(mediaProjection != null)
+        {
+            mediaProjection.unregisterCallback(mediaProjectionCallback);
+            mediaProjection.stop();
+            mediaProjection = null;
+        }
     }
 }

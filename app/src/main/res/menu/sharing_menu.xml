@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <item
+        android:id="@+id/facebook_share"
+        android:title="Facebook"/>
+    <item
+        android:id="@+id/instagram_share"
+        android:title="Instagram"/>
+    <item
+        android:id="@+id/twitter_share"
+        android:title="Twitter"/>
+    <item
+        android:id="@+id/tiktok_share"
+        android:title="TikTok"/>
+</menu>
