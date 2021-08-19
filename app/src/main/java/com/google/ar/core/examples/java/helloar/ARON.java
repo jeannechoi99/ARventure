@@ -16,6 +16,15 @@
 
 package com.google.ar.core.examples.java.helloar;
 
+import android.graphics.drawable.ColorDrawable;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,6 +37,7 @@ import android.media.Image;
 import android.media.MediaRecorder;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.net.Uri;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -256,7 +266,30 @@ public class ARON extends AppCompatActivity implements SampleRender.Renderer {
 
         );
 
+        View header;
+
+        header = getLayoutInflater().inflate(R.layout.musiclist, null, false);
+
+        ListView listView = header.findViewById(R.id.listView);
+
+        List<String> list = new ArrayList<>();
+        list.add("Permission to Dance - BTS");
+        list.add("Queendom - Red Velvet");
+        list.add("RollerCoaster - ChungA");
+        list.add("Just Give Me a Reason - Pink");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list);
+        listView.setAdapter(adapter);
+
         ImageButton musicButton = findViewById(R.id.ARON_music);
+        musicButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        showMusicList();
+                    }
+                }
+        );
 
         ImageButton shareButton = findViewById(R.id.ARON_sharing);
 
@@ -265,7 +298,7 @@ public class ARON extends AppCompatActivity implements SampleRender.Renderer {
                     @Override
                     public void onClick(View v) {
                         PopupMenu popup = new PopupMenu(ARON.this, v);
-                        //popup.setOnMenuItemClickListener(ARON.this::settingsMenuClick);
+                        popup.setOnMenuItemClickListener(ARON.this::sharingMenuClick);
                         popup.inflate(R.menu.sharing_menu);
                         popup.show();
                     }
@@ -338,6 +371,60 @@ public class ARON extends AppCompatActivity implements SampleRender.Renderer {
 
         );
     }
+
+    private void showMusicList() {
+        //We need to get the instance of the LayoutInflater, use the context of this activity
+        LayoutInflater inflater = (LayoutInflater) ARON.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        //Inflate the view from a predefined XML layout (no need for root id, using entire layout)
+        View layout = inflater.inflate(R.layout.musiclist,null);
+
+        //Get the devices screen density to calculate correct pixel sizes
+        float density=ARON.this.getResources().getDisplayMetrics().density;
+        // create a focusable PopupWindow with the given layout and correct size
+        final PopupWindow pw = new PopupWindow(layout, (int)density*240, (int)density*285, true);
+        //Button to close the pop-up
+        ((Button) layout.findViewById(R.id.music_close)).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                pw.dismiss();
+            }
+        });
+        //Set up touch closing outside of pop-up
+        pw.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        pw.setTouchInterceptor(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_OUTSIDE) {
+                    pw.dismiss();
+                    return true;
+                }
+                return false;
+            }
+        });
+        pw.setOutsideTouchable(true);
+        // display the pop-up in the center
+        pw.showAtLocation(layout, Gravity.CENTER, 0, 0);
+    }
+
+    /** Menu button to launch feature specific settings. */
+  protected boolean sharingMenuClick(MenuItem item) {
+    if (item.getItemId() == R.id.facebook_share) {
+      Intent intent1 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/"));
+      startActivity(intent1);
+      return true;
+    } else if (item.getItemId() == R.id.instagram_share) {
+        Intent intent2 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/"));
+        startActivity(intent2);
+      return true;
+    } else if (item.getItemId() == R.id.twitter_share) {
+        Intent intent3 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/"));
+        startActivity(intent3);
+        return true;
+    } else if (item.getItemId() == R.id.tiktok_share) {
+        Intent intent4 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.tiktok.com/ko-KR/"));
+        startActivity(intent4);
+        return true;
+    }
+    return false;
+  }
 
     private void ARScreenShare(View view) {
         if(((ToggleButton)view).isChecked())
